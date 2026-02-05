@@ -1,0 +1,192 @@
+from ultralytics import YOLO
+import cv2
+import supervision as sv
+import time
+from pathlib import Path
+import random
+
+# ---------------- CONFIG ---------------- #
+BEST_WEIGHTS_PATH = Path("./runs/detect/yolov11s_trained/weights/best.pt")
+
+CONF_THRESHOLD = 0.5
+MODE = "image"   # image | video | live
+
+INPUT_IMAGE_PATH_DIR = Path("./RAD_DATASET/images/test")
+INPUT_VIDEO_PATH = Path(r"path\to\your\test\video.mp4")
+
+OUTPUT_DIR = Path("test_output")
+OUTPUT_DIR.mkdir(exist_ok=True)
+
+CAMERA_INDEX = 0
+
+
+# ---------------- LOAD MODEL ---------------- #
+print(f"Loading model from: {BEST_WEIGHTS_PATH}")
+
+try:
+    model = YOLO(str(BEST_WEIGHTS_PATH))
+    class_names = model.names
+    print(f"Model loaded. Classes: {class_names}")
+except Exception as e:
+    print(f"Failed to load model: {e}")
+    raise SystemExit
+
+
+# ---------------- SUPERVISION ---------------- #
+box_annotator = sv.BoxAnnotator(thickness=2)
+label_annotator = sv.LabelAnnotator(
+    text_thickness=1,
+    text_scale=0.6,
+    text_color=sv.Color.BLACK
+)
+
+
+# ---------------- FRAME PROCESSING ---------------- #
+def process_frame(frame, frame_index=0):
+
+    results = model(frame, conf=CONF_THRESHOLD, verbose=False)[0]
+    detections = sv.Detections.from_ultralytics(results)
+
+    labels = [
+        f"{class_names[cid]} {conf:.2f}"
+        for cid, conf in zip(detections.class_id, detections.confidence)
+    ]
+
+    annotated = box_annotator.annotate(frame.copy(), detections)
+    annotated = label_annotator.annotate(annotated, detections, labels)
+
+    return annotated
+
+
+# ---------------- IMAGE INFERENCE ---------------- #
+def infer_on_image(image_path):
+
+    if not image_path.exists():
+        print(f"Image not found: {image_path}")
+        return
+
+    frame = cv2.imread(str(image_path))
+    if frame is None:
+        print("Failed to load image")
+        return
+
+    annotated = process_frame(frame)
+
+    output_path = OUTPUT_DIR / f"{image_path.stem}_annotated.jpg"
+    cv2.imwrite(str(output_path), annotated)
+
+    print(f"Saved: {output_path}")
+
+
+# ---------------- VIDEO INFERENCE ---------------- #
+def infer_on_video(video_path):
+
+    if not video_path.exists():
+        print(f"Video not found: {video_path}")
+        return
+
+    output_path = OUTPUT_DIR / f"{video_path.stem}_annotated.mp4"
+
+    print(f"Processing video: {video_path.name}")
+
+    try:
+        sv.process_video(
+            source_path=str(video_path),
+            target_path=str(output_path),
+            callback=lambda frame, i: process_frame(frame, i)
+        )
+        print(f"Video saved: {output_path}")
+
+    except Exception as e:
+        print(f"Video processing error: {e}")
+
+
+# ---------------- LIVE CAMERA ---------------- #
+def infer_on_live_camera(camera_index=0):
+
+    cap = cv2.VideoCapture(camera_index)
+
+    if not cap.isOpened():
+        print("Cannot open camera")
+        return
+
+    prev_time = time.time()
+
+    print("Press 'q' to quit")
+
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+
+        annotated = process_frame(frame)
+
+        # ---- FPS ----
+        curr_time = time.time()
+        fps = 1 / max(curr_time - prev_time, 1e-6)
+        prev_time = curr_time
+
+        cv2.putText(
+            annotated,
+            f"FPS: {fps:.1f}",
+            (10, 30),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.8,
+            (0, 255, 0),
+            2
+        )
+
+        cv2.imshow("Live Detection", annotated)
+
+        if cv2.waitKey(1) & 0xFF == ord("q"):
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()
+
+
+
+
+def infer_random_images(image_dir, num_samples=10):
+
+    if not image_dir.exists():
+        print(f"Folder not found: {image_dir}")
+        return
+
+    images = [
+        p for p in image_dir.iterdir()
+        if p.suffix.lower() in [".jpg", ".jpeg", ".png"]
+    ]
+
+    if not images:
+        print("No images found in folder.")
+        return
+
+    sample_images = random.sample(images, min(num_samples, len(images)))
+
+    print(f"Running inference on {len(sample_images)} random images...\n")
+
+    for img_path in sample_images:
+        print(f"Processing: {img_path.name}")
+        infer_on_image(img_path)
+
+
+
+# ---------------- MAIN ---------------- #
+if __name__ == "__main__":
+
+    print("\n=== Road Defect Detection ===\n")
+
+    if MODE == "image":
+        infer_random_images(INPUT_IMAGE_PATH_DIR)
+
+    elif MODE == "video":
+        infer_on_video(INPUT_VIDEO_PATH)
+
+    elif MODE == "live":
+        infer_on_live_camera(CAMERA_INDEX)
+
+    else:
+        print("MODE must be: image | video | live")
+
+    print("\nDone!")
