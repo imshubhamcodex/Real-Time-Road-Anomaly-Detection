@@ -46,7 +46,7 @@ RAD_DATASET/
     └── test/
 ```
 
-## Model 1: Custom Trained YOLOv11s (`best.pt`)
+## Model : Custom Trained YOLOv11s (`best.pt`)
 
 This is the primary model we trained from scratch using our custom dataset.
 
@@ -93,7 +93,9 @@ We ran a final evaluation on a dedicated test set using the `best.pt` model.
 - **mAP@0.5:** 0.763
 - **mAP@0.5:0.95:** 0.441
 
-# Deployment Guide – Raspberry Pi 4 Setup
+---
+
+## Deployment Guide – Raspberry Pi 4 Setup
 
 ## 1. Network & VNC Setup
 
@@ -242,7 +244,6 @@ python inference.py
 
 ## Notes
 
-- SPI **must** be enabled for SX127x LoRa communication.
 - VNC is required for OpenCV GUI preview.
 - NCNN, TFLite, ONNX export significantly improves inference speed on Raspberry Pi.
 
