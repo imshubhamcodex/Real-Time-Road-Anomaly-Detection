@@ -97,8 +97,6 @@ We ran a final evaluation on a dedicated test set using the `best.pt` model.
 
 ## Deployment Guide – Raspberry Pi 4 Setup
 
-## 1. Network & VNC Setup
-
 ### Step 1: Get Raspberry Pi IP Address
 
 ```bash
