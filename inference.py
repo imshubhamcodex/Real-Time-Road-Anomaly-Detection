@@ -264,6 +264,7 @@ def infer_on_live_camera(camera_index=0):
 
     try:
         while True:
+            global frame_counter
 
             try:
                 frame = frame_q.get(timeout=0.2)
