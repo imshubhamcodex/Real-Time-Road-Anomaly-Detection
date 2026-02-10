@@ -18,7 +18,7 @@ os.environ["MKL_NUM_THREADS"] = "2"
 BEST_WEIGHTS_PATH = Path("./runs/detect/yolov11s_trained/weights/best_ncnn_model")
 # BEST_WEIGHTS_PATH = Path("./runs/detect/yolov11s_trained/weights/best.pt")
 
-CONF_THRESHOLD = 0.6
+CONF_THRESHOLD = 0.5
 IOU_THRESHOLD = 0.5
 
 MODE = "live"   # image | video | live
@@ -70,7 +70,7 @@ def process_frame(frame, frame_index=0):
 
     # 2. Aggressive NMS (Lower threshold = fewer boxes)
     # class_agnostic=True is critical if you see different labels on one object
-    detections = detections.with_nms(threshold=0.1, class_agnostic=True)
+    # detections = detections.with_nms(threshold=0.1, class_agnostic=True)
     
     # 3. Filter by area (Optional: removes tiny 'noise' boxes common in NCNN)
     # detections = detections[detections.area > 500] 
