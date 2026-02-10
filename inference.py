@@ -183,8 +183,8 @@ def infer_random_images(image_dir, num_samples=10):
 # ---------------- LIVE CAMERA ---------------- #
 def infer_on_live_camera(camera_index=0):
 
-    WIDTH = 320
-    HEIGHT = 240
+    WIDTH = 640
+    HEIGHT = 480
     FRAME_SIZE = int(WIDTH * HEIGHT * 1.5)
 
     frame_q = queue.Queue(maxsize=1)
