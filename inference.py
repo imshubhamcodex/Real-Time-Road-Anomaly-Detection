@@ -273,15 +273,17 @@ def infer_on_live_camera(camera_index=0):
 
             frame_counter += 1
 
-            # ---- Frame Skipping ----
-            if frame_counter % 2 == 0:
-                last_annotated = process_frame(frame)
+            # # ---- Frame Skipping ----
+            # if frame_counter % 2 == 0:
+            #     last_annotated = process_frame(frame)
 
-            # Use last annotated frame OR raw frame
-            base_frame = last_annotated if last_annotated is not None else frame
+            # # Use last annotated frame OR raw frame
+            # base_frame = last_annotated if last_annotated is not None else frame
 
-            # VERY IMPORTANT → copy before drawing FPS
-            display_frame = base_frame.copy()
+            # # VERY IMPORTANT → copy before drawing FPS
+            # display_frame = base_frame.copy()
+            
+            base_frame = process_frame(frame)
 
             # ----- FPS smoothing -----
             now = time.time()
