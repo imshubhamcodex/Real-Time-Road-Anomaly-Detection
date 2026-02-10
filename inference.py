@@ -15,7 +15,7 @@ os.environ["MKL_NUM_THREADS"] = "2"
 
 # ---------------- CONFIG ---------------- #
 # yolo export model="./runs/detect/yolov11s_trained/weights/best.pt" format=ncnn imgsz=128
-BEST_WEIGHTS_PATH = Path("./runs/detect/yolov11s_trained/weights/best_saved_model")
+BEST_WEIGHTS_PATH = Path("./runs/detect/yolov11s_trained/weights/best_ncnn_model")
 
 CONF_THRESHOLD = 0.5
 MODE = "live"   # image | video | live
