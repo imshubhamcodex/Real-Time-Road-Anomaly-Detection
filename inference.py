@@ -14,11 +14,13 @@ os.environ["OPENBLAS_NUM_THREADS"] = "2"
 os.environ["MKL_NUM_THREADS"] = "2"
 
 # ---------------- CONFIG ---------------- #
-# yolo export model="./runs/detect/yolov11s_trained/weights/best.pt" format=ncnn imgsz=128
+# yolo export model="./runs/detect/yolov11s_trained/weights/best.pt" format=ncnn imgsz=320 half=False
 # BEST_WEIGHTS_PATH = Path("./runs/detect/yolov11s_trained/weights/best_ncnn_model")
 BEST_WEIGHTS_PATH = Path("./runs/detect/yolov11s_trained/weights/best.pt")
 
-CONF_THRESHOLD = 0.5
+CONF_THRESHOLD = 0.6
+IOU_THRESHOLD = 0.5
+
 MODE = "live"   # image | video | live
 
 INPUT_IMAGE_PATH_DIR = Path("./RAD_DATASET/images/test")
@@ -54,9 +56,11 @@ label_annotator = sv.LabelAnnotator(
 # ---------------- FRAME PROCESSING ---------------- #
 def process_frame(frame, frame_index=0):
 
-    results = model(frame, conf=CONF_THRESHOLD, verbose=False)[0]
+    frame_resized = cv2.resize(frame, (320, 320))
+    results = model(frame, conf=CONF_THRESHOLD, iou=IOU_THRESHOLD, verbose=False)[0]
     detections = sv.Detections.from_ultralytics(results)
-
+    detections = detections.with_nms(threshold=0.5)
+    
     labels = [
         f"{class_names[cid]} {conf:.2f}"
         for cid, conf in zip(detections.class_id, detections.confidence)
@@ -246,8 +250,6 @@ def infer_on_live_camera(camera_index=0):
                 frame = frame_q.get(timeout=0.2)
             except queue.Empty:
                 continue
-
-            frame = frame_q.get()
 
             annotated = process_frame(frame)
 
