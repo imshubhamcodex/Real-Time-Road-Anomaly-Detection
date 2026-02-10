@@ -15,8 +15,8 @@ os.environ["MKL_NUM_THREADS"] = "2"
 
 # ---------------- CONFIG ---------------- #
 # yolo export model="./runs/detect/yolov11s_trained/weights/best.pt" format=ncnn imgsz=320 half=False
-# BEST_WEIGHTS_PATH = Path("./runs/detect/yolov11s_trained/weights/best_ncnn_model")
-BEST_WEIGHTS_PATH = Path("./runs/detect/yolov11s_trained/weights/best.pt")
+BEST_WEIGHTS_PATH = Path("./runs/detect/yolov11s_trained/weights/best_ncnn_model")
+# BEST_WEIGHTS_PATH = Path("./runs/detect/yolov11s_trained/weights/best.pt")
 
 CONF_THRESHOLD = 0.6
 IOU_THRESHOLD = 0.5
@@ -56,10 +56,13 @@ label_annotator = sv.LabelAnnotator(
 # ---------------- FRAME PROCESSING ---------------- #
 def process_frame(frame, frame_index=0):
 
+    # Resize FIRST
     frame_resized = cv2.resize(frame, (320, 320))
-    results = model(frame, conf=CONF_THRESHOLD, iou=IOU_THRESHOLD, verbose=False)[0]
+    # Pass frame_resized to the model instead of the original frame
+    results = model(frame_resized, conf=CONF_THRESHOLD, iou=IOU_THRESHOLD, verbose=False)[0]
     detections = sv.Detections.from_ultralytics(results)
-    detections = detections.with_nms(threshold=0.5)
+    # Aggressive NMS
+    detections = detections.with_nms(threshold=0.2, class_agnostic=True)
     
     labels = [
         f"{class_names[cid]} {conf:.2f}"
