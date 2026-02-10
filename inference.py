@@ -76,7 +76,7 @@ def process_frame(frame, frame_index=0):
     detections = detections.with_nms(threshold=0.3, class_agnostic=True)
     
     # 3. Filter by area (Optional: removes tiny 'noise' boxes common in NCNN)
-    detections = detections[detections.area > 500] 
+    # detections = detections[detections.area > 500] 
 
     labels = [
         f"{class_names[cid]} {conf:.2f}"
@@ -270,20 +270,18 @@ def infer_on_live_camera(camera_index=0):
                 frame = frame_q.get(timeout=0.2)
             except queue.Empty:
                 continue
-            
+
             frame_counter += 1
 
-            # Run detection every 2nd frame
+            # ---- Frame Skipping ----
             if frame_counter % 2 == 0:
-                annotated = process_frame(frame)
-                last_annotated = annotated
-            else:
-                if last_annotated is not None:
-                    annotated = last_annotated
-                else:
-                    annotated = frame
+                last_annotated = process_frame(frame)
 
-            # annotated = process_frame(frame)
+            # Use last annotated frame OR raw frame
+            base_frame = last_annotated if last_annotated is not None else frame
+
+            # VERY IMPORTANT → copy before drawing FPS
+            display_frame = base_frame.copy()
 
             # ----- FPS smoothing -----
             now = time.time()
@@ -291,7 +289,7 @@ def infer_on_live_camera(camera_index=0):
             prev_time = now
 
             cv2.putText(
-                annotated,
+                display_frame,
                 f"FPS: {fps:.2f}",
                 (10, 30),
                 cv2.FONT_HERSHEY_SIMPLEX,
@@ -300,11 +298,10 @@ def infer_on_live_camera(camera_index=0):
                 2
             )
 
-            cv2.imshow("Live Detection", annotated)
+            cv2.imshow("Live Detection", display_frame)
 
             if cv2.waitKey(1) & 0xFF == ord("q"):
                 break
-
     finally:
         stop_event.set()
         cam_proc.terminate()
