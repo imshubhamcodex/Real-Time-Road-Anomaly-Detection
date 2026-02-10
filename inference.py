@@ -15,8 +15,8 @@ os.environ["MKL_NUM_THREADS"] = "2"
 
 # ---------------- CONFIG ---------------- #
 # yolo export model="./runs/detect/yolov11s_trained/weights/best.pt" format=ncnn imgsz=320 half=False
-# BEST_WEIGHTS_PATH = Path("./runs/detect/yolov11s_trained/weights/best_ncnn_model")
-BEST_WEIGHTS_PATH = Path("./runs/detect/yolov11s_trained/weights/best.pt")
+BEST_WEIGHTS_PATH = Path("./runs/detect/yolov11s_trained/weights/best_ncnn_model")
+# BEST_WEIGHTS_PATH = Path("./runs/detect/yolov11s_trained/weights/best.pt")
 
 CONF_THRESHOLD = 0.6
 IOU_THRESHOLD = 0.5
