@@ -9,9 +9,9 @@ import threading
 import queue
 import numpy as np
 import os
-os.environ["OMP_NUM_THREADS"] = "2"
-os.environ["OPENBLAS_NUM_THREADS"] = "2"
-os.environ["MKL_NUM_THREADS"] = "2"
+os.environ["OMP_NUM_THREADS"] = "4"
+os.environ["OPENBLAS_NUM_THREADS"] = "4"
+os.environ["MKL_NUM_THREADS"] = "4"
 
 # ---------------- CONFIG ---------------- #
 # yolo export model="./runs/detect/yolov11s_trained/weights/best.pt" format=ncnn imgsz=320 half=False
@@ -19,7 +19,7 @@ BEST_WEIGHTS_PATH = Path("./runs/detect/yolov11s_trained/weights/best_ncnn_model
 # BEST_WEIGHTS_PATH = Path("./runs/detect/yolov11s_trained/weights/best.pt")
 
 CONF_THRESHOLD = 0.5
-IOU_THRESHOLD = 0.5
+IOU_THRESHOLD = 0.4
 
 MODE = "live"   # image | video | live
 
@@ -30,6 +30,9 @@ OUTPUT_DIR = Path("test_output")
 OUTPUT_DIR.mkdir(exist_ok=True)
 
 CAMERA_INDEX = 0
+
+frame_counter = 0
+last_annotated = None
 
 
 # ---------------- LOAD MODEL ---------------- #
@@ -70,10 +73,10 @@ def process_frame(frame, frame_index=0):
 
     # 2. Aggressive NMS (Lower threshold = fewer boxes)
     # class_agnostic=True is critical if you see different labels on one object
-    # detections = detections.with_nms(threshold=0.1, class_agnostic=True)
+    detections = detections.with_nms(threshold=0.3, class_agnostic=True)
     
     # 3. Filter by area (Optional: removes tiny 'noise' boxes common in NCNN)
-    # detections = detections[detections.area > 500] 
+    detections = detections[detections.area > 500] 
 
     labels = [
         f"{class_names[cid]} {conf:.2f}"
@@ -204,8 +207,8 @@ def infer_random_images(image_dir, num_samples=10):
 # ---------------- LIVE CAMERA ---------------- #
 def infer_on_live_camera(camera_index=0):
 
-    WIDTH = 640
-    HEIGHT = 480
+    WIDTH = 320
+    HEIGHT = 320
     FRAME_SIZE = int(WIDTH * HEIGHT * 1.5)
 
     frame_q = queue.Queue(maxsize=1)
@@ -266,8 +269,20 @@ def infer_on_live_camera(camera_index=0):
                 frame = frame_q.get(timeout=0.2)
             except queue.Empty:
                 continue
+            
+            frame_counter += 1
 
-            annotated = process_frame(frame)
+            # Run detection every 2nd frame
+            if frame_counter % 2 == 0:
+                annotated = process_frame(frame)
+                last_annotated = annotated
+            else:
+                if last_annotated is not None:
+                    annotated = last_annotated
+                else:
+                    annotated = frame
+
+            # annotated = process_frame(frame)
 
             # ----- FPS smoothing -----
             now = time.time()
