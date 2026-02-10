@@ -55,24 +55,37 @@ label_annotator = sv.LabelAnnotator(
 
 # ---------------- FRAME PROCESSING ---------------- #
 def process_frame(frame, frame_index=0):
+    # Get original dimensions
+    h_orig, w_orig = frame.shape[:2]
 
-    # Resize FIRST
-    frame_resized = cv2.resize(frame, (320, 320))
-    # Pass frame_resized to the model instead of the original frame
-    results = model(frame_resized, conf=CONF_THRESHOLD, iou=IOU_THRESHOLD, verbose=False)[0]
-    detections = sv.Detections.from_ultralytics(results)
-    # Aggressive NMS
-    detections = detections.with_nms(threshold=0.2, class_agnostic=True)
+    # Run inference on the expected 320x320 size
+    results = model(frame, imgsz=320, conf=CONF_THRESHOLD, iou=IOU_THRESHOLD, verbose=False)[0]
     
+    # Convert to Supervision detections
+    detections = sv.Detections.from_ultralytics(results)
+    
+    # 1. SCALE detections back to original resolution before NMS
+    # Ultralytics results often scale automatically, but if they are stuck at 320:
+    # detections.xyxy = detections.xyxy * [w_orig/320, h_orig/320, w_orig/320, h_orig/320]
+
+    # 2. Aggressive NMS (Lower threshold = fewer boxes)
+    # class_agnostic=True is critical if you see different labels on one object
+    detections = detections.with_nms(threshold=0.1, class_agnostic=True)
+    
+    # 3. Filter by area (Optional: removes tiny 'noise' boxes common in NCNN)
+    # detections = detections[detections.area > 500] 
+
     labels = [
         f"{class_names[cid]} {conf:.2f}"
         for cid, conf in zip(detections.class_id, detections.confidence)
     ]
 
-    annotated = box_annotator.annotate(frame, detections)
+    # Annotate the ORIGINAL frame
+    annotated = box_annotator.annotate(frame.copy(), detections)
     annotated = label_annotator.annotate(annotated, detections, labels)
 
     return annotated
+
 
 
 # ---------------- IMAGE INFERENCE ---------------- #
