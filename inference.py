@@ -207,8 +207,8 @@ def infer_random_images(image_dir, num_samples=10):
 # ---------------- LIVE CAMERA ---------------- #
 def infer_on_live_camera(camera_index=0):
 
-    WIDTH = 320
-    HEIGHT = 320
+    WIDTH = 256
+    HEIGHT = 256
     FRAME_SIZE = int(WIDTH * HEIGHT * 1.5)
 
     frame_q = queue.Queue(maxsize=1)
@@ -221,7 +221,7 @@ def infer_on_live_camera(camera_index=0):
             "rpicam-vid",
             "--width", str(WIDTH),
             "--height", str(HEIGHT),
-            "--framerate", "15",
+            "--framerate", "8",
             "--codec", "yuv420",
             "--nopreview",
             "-t", "0",
