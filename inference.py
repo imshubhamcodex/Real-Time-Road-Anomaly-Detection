@@ -222,7 +222,7 @@ def infer_on_live_camera(camera_index=0):
             "--width", str(WIDTH),
             "--height", str(HEIGHT),
             "--framerate", "10",
-            # "--codec", "yuv420",
+            "--codec", "yuv420",
             "--nopreview",
             "-t", "0",
             "-o", "-"
