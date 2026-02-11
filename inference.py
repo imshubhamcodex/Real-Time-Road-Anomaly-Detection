@@ -50,9 +50,10 @@ cam_proc = subprocess.Popen(
         "--width", str(FRAME_WIDTH),
         "--height", str(FRAME_HEIGHT),
         "--framerate", "8",            # Slightly safer FPS
-        "--codec", "yuv420",
+        "--codec", "mjpeg",
         "--inline",
         "--nopreview",
+        "--denoise cdn_off",
         "-t", "0",
         "-o", "-"
     ],
