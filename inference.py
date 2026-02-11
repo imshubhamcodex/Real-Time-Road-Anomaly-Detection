@@ -20,10 +20,10 @@ MODEL_PATH = Path("./runs/detect/yolov11s_trained/weights/best_ncnn_model")
 # BEST_WEIGHTS_PATH = Path("./runs/detect/yolov11s_trained/weights/best_ncnn_model")
 CONFIDENCE = 0.4
 IOU_THRESHOLD = 0.4
-IMG_SIZE = 128
+IMG_SIZE = 256
 
-FRAME_WIDTH = 128
-FRAME_HEIGHT = 128
+FRAME_WIDTH = 256
+FRAME_HEIGHT = 256
 FRAME_SIZE = int(FRAME_WIDTH * FRAME_HEIGHT * 1.5)
 
 # Queue buffer
