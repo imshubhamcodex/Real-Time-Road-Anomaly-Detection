@@ -18,12 +18,12 @@ os.environ["MKL_NUM_THREADS"] = "4"
 # ---------------- CONFIG ---------------- #
 MODEL_PATH = Path("./runs/detect/yolov11s_trained/weights/best_ncnn_model")
 # BEST_WEIGHTS_PATH = Path("./runs/detect/yolov11s_trained/weights/best_ncnn_model")
-CONFIDENCE = 0.35
+CONFIDENCE = 0.4
 IOU_THRESHOLD = 0.4
-IMG_SIZE = 320
+IMG_SIZE = 512
 
-FRAME_WIDTH = 320
-FRAME_HEIGHT = 320
+FRAME_WIDTH = 512
+FRAME_HEIGHT = 512
 FRAME_SIZE = int(FRAME_WIDTH * FRAME_HEIGHT * 1.5)
 
 # Queue buffer
