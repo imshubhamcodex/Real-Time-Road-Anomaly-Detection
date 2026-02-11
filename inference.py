@@ -23,7 +23,7 @@ IMG_SIZE = 320
 
 FRAME_WIDTH = 320
 FRAME_HEIGHT = 320
-FRAME_SIZE = FRAME_WIDTH * FRAME_HEIGHT * 3
+FRAME_SIZE = int(FRAME_WIDTH * FRAME_HEIGHT * 1.5)
 
 # Queue buffer
 frame_q = queue.Queue(maxsize=3)
@@ -50,7 +50,7 @@ cam_proc = subprocess.Popen(
         "--width", str(FRAME_WIDTH),
         "--height", str(FRAME_HEIGHT),
         "--framerate", "8",            # Slightly safer FPS
-        "--codec", "mjpeg",
+        "--codec", "yuv420",
         "--inline",
         "--nopreview",
         "-t", "0",
@@ -80,8 +80,8 @@ def cam_reader():
             if len(raw) != FRAME_SIZE:
                 continue
 
-            frame = np.frombuffer(raw, dtype=np.uint8)
-            frame = frame.reshape((FRAME_HEIGHT, FRAME_WIDTH, 3))
+            yuv = np.frombuffer(raw, dtype=np.uint8).reshape((H * 3 // 2, W))
+            frame = cv2.cvtColor(yuv, cv2.COLOR_YUV2BGR_I420)
 
             # Drop old frames → real-time behaviour
             if frame_q.full():
