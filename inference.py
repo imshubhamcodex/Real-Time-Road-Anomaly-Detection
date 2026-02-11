@@ -80,7 +80,7 @@ def cam_reader():
             if len(raw) != FRAME_SIZE:
                 continue
 
-            yuv = np.frombuffer(raw, dtype=np.uint8).reshape((H * 3 // 2, W))
+            yuv = np.frombuffer(raw, dtype=np.uint8).reshape((FRAME_HEIGHT * 3 // 2, FRAME_HEIGHT))
             frame = cv2.cvtColor(yuv, cv2.COLOR_YUV2BGR_I420)
 
             # Drop old frames → real-time behaviour
