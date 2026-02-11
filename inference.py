@@ -9,12 +9,12 @@ import threading
 import queue
 import numpy as np
 import os
-os.environ["OMP_NUM_THREADS"] = "4"
-os.environ["OPENBLAS_NUM_THREADS"] = "4"
-os.environ["MKL_NUM_THREADS"] = "4"
+os.environ["OMP_NUM_THREADS"] = "3"
+os.environ["OPENBLAS_NUM_THREADS"] = "3"
+os.environ["MKL_NUM_THREADS"] = "3"
 
 # ---------------- CONFIG ---------------- #
-# yolo export model="./runs/detect/yolov11s_trained/weights/best.pt" format=ncnn imgsz=320 half=False
+# yolo export model="./runs/detect/yolov11s_trained/weights/best.pt" format=ncnn imgsz=320 half=True
 BEST_WEIGHTS_PATH = Path("./runs/detect/yolov11s_trained/weights/best_ncnn_model")
 # BEST_WEIGHTS_PATH = Path("./runs/detect/yolov11s_trained/weights/best.pt")
 
@@ -48,10 +48,10 @@ except Exception as e:
 
 
 # ---------------- SUPERVISION ---------------- #
-box_annotator = sv.BoxAnnotator(thickness=2)
+box_annotator = sv.BoxAnnotator(thickness=1)
 label_annotator = sv.LabelAnnotator(
     text_thickness=1,
-    text_scale=0.6,
+    text_scale=0.5,
     text_color=sv.Color.BLACK
 )
 
@@ -62,10 +62,13 @@ def process_frame(frame, frame_index=0):
     h_orig, w_orig = frame.shape[:2]
 
     # Run inference on the expected 320x320 size
-    results = model(frame, imgsz=320, conf=CONF_THRESHOLD, iou=IOU_THRESHOLD, verbose=False)[0]
+    results = model(frame, imgsz=256, conf=CONF_THRESHOLD, iou=IOU_THRESHOLD, verbose=False)[0]
     
     # Convert to Supervision detections
     detections = sv.Detections.from_ultralytics(results)
+    
+    if len(detections) == 0:
+        return frame
     
     # 1. SCALE detections back to original resolution before NMS
     # Ultralytics results often scale automatically, but if they are stuck at 320:
@@ -73,7 +76,7 @@ def process_frame(frame, frame_index=0):
 
     # 2. Aggressive NMS (Lower threshold = fewer boxes)
     # class_agnostic=True is critical if you see different labels on one object
-    detections = detections.with_nms(threshold=0.3, class_agnostic=True)
+    # detections = detections.with_nms(threshold=0.3, class_agnostic=True)
     
     # 3. Filter by area (Optional: removes tiny 'noise' boxes common in NCNN)
     # detections = detections[detections.area > 500] 
@@ -209,7 +212,7 @@ def infer_on_live_camera(camera_index=0):
 
     WIDTH = 320
     HEIGHT = 320
-    FRAME_SIZE = int(WIDTH * HEIGHT * 1.5)
+    FRAME_SIZE = WIDTH * HEIGHT * 3
 
     frame_q = queue.Queue(maxsize=1)
     stop_event = threading.Event()
@@ -222,7 +225,7 @@ def infer_on_live_camera(camera_index=0):
             "--width", str(WIDTH),
             "--height", str(HEIGHT),
             "--framerate", "10",
-            "--codec", "yuv420",
+            "--codec", "rgb",
             "--nopreview",
             "-t", "0",
             "-o", "-"
@@ -241,10 +244,7 @@ def infer_on_live_camera(camera_index=0):
                 continue
 
             try:
-                yuv = np.frombuffer(raw, np.uint8).reshape(
-                    (int(HEIGHT * 1.5), WIDTH)
-                )
-                frame = cv2.cvtColor(yuv, cv2.COLOR_YUV2BGR_I420)
+                frame = np.frombuffer(raw, np.uint8).reshape((HEIGHT, WIDTH, 3))
 
             except:
                 continue
@@ -273,17 +273,12 @@ def infer_on_live_camera(camera_index=0):
 
             frame_counter += 1
 
-            # # ---- Frame Skipping ----
-            # if frame_counter % 2 == 0:
-            #     last_annotated = process_frame(frame)
+            # ---- Frame Skipping ----
+            if frame_counter % 2 == 0:
+                last_annotated = process_frame(frame)
 
             # # Use last annotated frame OR raw frame
-            # base_frame = last_annotated if last_annotated is not None else frame
-
-            # # VERY IMPORTANT → copy before drawing FPS
-            
-            
-            base_frame = process_frame(frame)
+            base_frame = last_annotated if last_annotated is not None else frame
             display_frame = base_frame.copy()
 
             # ----- FPS smoothing -----
