@@ -16,7 +16,7 @@ os.environ["OPENBLAS_NUM_THREADS"] = "4"
 os.environ["MKL_NUM_THREADS"] = "4"
 
 # ---------------- CONFIG ---------------- #
-MODEL_PATH = Path("runs/detect/yolov11s_road3/weights/best_ncnn_model")
+MODEL_PATH = Path("runs/detect/yolov11s_road/weights/best_ncnn_model")
 CONFIDENCE = 0.25
 IMG_SIZE = 320
 
