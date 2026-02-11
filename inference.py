@@ -18,8 +18,8 @@ os.environ["MKL_NUM_THREADS"] = "4"
 # ---------------- CONFIG ---------------- #
 MODEL_PATH = Path("./runs/detect/yolov11s_trained/weights/best_ncnn_model")
 # BEST_WEIGHTS_PATH = Path("./runs/detect/yolov11s_trained/weights/best_ncnn_model")
-CONFIDENCE = 0.4
-IOU_THRESHOLD = 0.4
+CONFIDENCE = 0.2
+# IOU_THRESHOLD = 0.4
 IMG_SIZE = 256
 
 FRAME_WIDTH = 256
@@ -108,7 +108,7 @@ def process_frame(frame):
         frame,
         imgsz=IMG_SIZE,
         conf=CONFIDENCE,
-        iou=IOU_THRESHOLD,
+        # iou=IOU_THRESHOLD,
         verbose=False
     )[0]
 
