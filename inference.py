@@ -212,7 +212,7 @@ def infer_on_live_camera(camera_index=0):
 
     WIDTH = 320
     HEIGHT = 320
-    FRAME_SIZE = WIDTH * HEIGHT * 3
+    FRAME_SIZE = int(WIDTH * HEIGHT * 1.5)
 
     frame_q = queue.Queue(maxsize=1)
     stop_event = threading.Event()
@@ -225,7 +225,7 @@ def infer_on_live_camera(camera_index=0):
             "--width", str(WIDTH),
             "--height", str(HEIGHT),
             "--framerate", "10",
-            "--codec", "rgb",
+            "--codec", "yuv420",
             "--nopreview",
             "-t", "0",
             "-o", "-"
@@ -244,7 +244,8 @@ def infer_on_live_camera(camera_index=0):
                 continue
 
             try:
-                frame = np.frombuffer(raw, np.uint8).reshape((HEIGHT, WIDTH, 3))
+                yuv = np.frombuffer(raw, np.uint8).reshape((int(HEIGHT * 1.5), WIDTH))
+                frame = cv2.cvtColor(yuv, cv2.COLOR_YUV2BGR_I420)
 
             except:
                 continue
