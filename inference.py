@@ -53,7 +53,6 @@ cam_proc = subprocess.Popen(
         "--codec", "mjpeg",
         "--inline",
         "--nopreview",
-        "--denoise cdn_off",
         "-t", "0",
         "-o", "-"
     ],
