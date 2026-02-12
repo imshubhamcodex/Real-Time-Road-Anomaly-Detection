@@ -18,7 +18,7 @@ os.environ["MKL_NUM_THREADS"] = "4"
 # ---------------- CONFIG ---------------- #
 MODEL_PATH = Path("./runs/detect/yolov11s_trained/weights/best_ncnn_model")
 # BEST_WEIGHTS_PATH = Path("./runs/detect/yolov11s_trained/weights/best_ncnn_model")
-CONFIDENCE = 0.5
+CONFIDENCE = 0.3
 IOU_THRESHOLD = 0.4
 IMG_SIZE = 768
 
