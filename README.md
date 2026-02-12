@@ -1,6 +1,6 @@
 # Road Anomaly Detection
 
-Our Road Anomaly Detection project. We've been working on using computer vision, specifically YOLOv11 models, to automatically spot issues like cracks and potholes on road surfaces. This repository contains the dataset details, the models we trained and used, evaluation results and the demo applications we built.
+Our Road Anomaly Detection project. I've been working on using computer vision, specifically YOLOv11s models, to automatically spot issues like cracks and potholes on road surfaces. This repository contains the dataset details, the models I trained and used, evaluation results and the demo applications I built.
 
 ## Project Structure
 
@@ -9,29 +9,29 @@ Project Root
 │
 ├── RAD_DATASET/
 |
-├── runs/                       # Training outputs
+├── runs/                               # Training outputs
 │   └── detect/
 │       └── yolov11s_trained/
 │           └── weights/
-│               ├── best.pt     # Best trained model weights
-|               └── best_saved_model # TFLite model weights
+│               ├── best.pt             # Best trained model weights
+|               └── best_saved_model    # TFLite model weights
 │
-├── test_output/                # Inference output results
+├── test_output/                    # Inference output results
 │
-├── train.ipynb                 # Model training + evaluation notebook
-├── inference.py                # Image / Video / Live detection script
-├── view_annotations.py         # YOLO annotation visualizer
-├── requirements.txt            # Python dependencies
-├── README.md                   # Project documentation
+├── train.ipynb                     # Model training + evaluation notebook
+├── inference.py                    # Image / Video / Live detection script
+├── view_annotations.py             # YOLO annotation visualizer
+├── requirements.txt                # Python dependencies
+├── README.md                       # Project documentation
 │
-├── yolov11n.pt                 # Pretrained YOLOv11 Nano model
-├── yolov11s.pt                 # Pretrained YOLOv11 Small model
+├── yolov11n.pt                     # Pretrained YOLOv11 Nano model
+├── yolov11s.pt                     # Pretrained YOLOv11 Small model
 
 ```
 
 ## Dataset
 
-We put together a custom dataset specifically for training our main detection model.
+I put together a custom dataset specifically for training our main detection model.
 The dataset structure within this repository looks like this:
 
 ```tree
@@ -48,7 +48,7 @@ RAD_DATASET/
 
 ## Model : Custom Trained YOLOv11s (`best.pt`)
 
-This is the primary model we trained from scratch using our custom dataset.
+This is the primary model I trained from scratch using our custom dataset.
 
 - **Model Architecture:** YOLOv11s
 - **Training Epochs:** 100
@@ -72,7 +72,7 @@ These metrics reflect the performance on the validation set using the best weigh
 
 ### Test Set Performance (`best.pt` - Final Evaluation)
 
-We ran a final evaluation on a dedicated test set using the `best.pt` model.
+I ran a final evaluation on a dedicated test set using the `best.pt` model.
 
 | Class         | Precision | Recall    | mAP@.5    | mAP@.5:.95 |
 | :------------ | :-------- | :-------- | :-------- | :--------- |
@@ -84,7 +84,7 @@ We ran a final evaluation on a dedicated test set using the `best.pt` model.
 | Speed-Bump    | 0.645     | 0.729     | 0.746     | 0.411      |
 | UnsurfaceRoad | 0.569     | 0.684     | 0.617     | 0.366      |
 
-- **Average Inference Speed:** ~.2 ms per image
+- **Average Inference Speed:** ~0.2 ms per image
 
 #### Overall Test Metrics Summary:
 
@@ -96,6 +96,12 @@ We ran a final evaluation on a dedicated test set using the `best.pt` model.
 ---
 
 ## Deployment Guide – Raspberry Pi 4 Setup
+
+### Step 0: Login Raspberry Pi
+
+```bash
+ssh username@hostname
+```
 
 ### Step 1: Get Raspberry Pi IP Address
 
@@ -211,12 +217,12 @@ pip install -r requirements.txt
 ### Step 13.2: Export YOLO Model to NCNN or TFLite
 
 ```bash
-yolo export model="./runs/detect/yolov11s_trained/weights/best.pt" format=ncnn imgsz=128
+yolo export model="./runs/detect/yolov11s_trained/weights/best.pt" format=ncnn imgsz=768
 or
 yolo export model=best.pt format=tflite int8=True data=data.yaml
 ```
 
-> **Note:** `imgsz=128` must match `INFERENCE_SIZE` in the code.
+> **Note:** `imgsz=768` must match `INFERENCE_SIZE` in the code.
 
 ### Step 14.1: Terminal-Only Mode (No Camera Preview)
 
