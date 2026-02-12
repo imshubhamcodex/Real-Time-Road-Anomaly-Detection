@@ -6,8 +6,8 @@ import os
 
 # ---------------- CONFIG ---------------- #
 MODEL_PATH = "./runs/detect/yolov11s_trained/weights/best.pt"
-TEST_FOLDER = Path("./test")
-OUTPUT_FOLDER = Path("./output_images")
+TEST_FOLDER = Path("./images/test")
+OUTPUT_FOLDER = Path("./test_output")
 VIDEO_OUTPUT = "output_video.mp4"
 
 CONFIDENCE = 0.4
