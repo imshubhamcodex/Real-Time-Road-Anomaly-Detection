@@ -1,6 +1,6 @@
 # Road Anomaly Detection
 
-Our Road Anomaly Detection project. I've been working on using computer vision, specifically YOLOv11s models, to automatically spot issues like cracks and potholes on road surfaces. This repository contains the dataset details, the models I trained and used, evaluation results and the demo applications I built.
+In Road Anomaly Detection project. I've been working on using computer vision, specifically YOLOv11s models, to automatically spot issues like cracks and potholes on road surfaces. This repository contains the dataset details, the models I trained and used, evaluation results and the demo applications I built.
 
 ## Project Structure
 
@@ -31,7 +31,7 @@ Project Root
 
 ## Dataset
 
-I put together a custom dataset specifically for training our main detection model.
+I put together a custom dataset specifically for training the main detection model.
 The dataset structure within this repository looks like this:
 
 ```tree
@@ -48,7 +48,7 @@ RAD_DATASET/
 
 ## Model : Custom Trained YOLOv11s (`best.pt`)
 
-This is the primary model I trained from scratch using our custom dataset.
+This is the primary model I trained from scratch using the custom dataset.
 
 - **Model Architecture:** YOLOv11s
 - **Training Epochs:** 100
